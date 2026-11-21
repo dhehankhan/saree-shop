@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>শাড়ি সংগ্রহ</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div id="bar"></div>
+<video class="bg" id="v0" muted playsinline preload="auto"></video>
+<video class="bg" id="v1" muted playsinline preload="auto"></video>
+<div class="shade"></div>
+<header><b id="shop">শাড়ি সংগ্রহ</b><a href="admin.html">অ্যাডমিন</a></header>
+<div class="info" id="info"><i></i><h1 id="t"></h1><p id="d"></p><a class="wa" id="wa" target="_blank" rel="noopener">WhatsApp-এ অর্ডার করুন</a></div>
+<div class="rail" id="rail"></div>
+<div class="ctl"><button id="prev" aria-label="আগেরটি">←</button><button id="next" aria-label="পরেরটি">→</button></div>
+<div class="num" id="num"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const bn=n=>String(n).padStart(2,'0').replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+let items=[],WA='8801754007716',cur=0,layer=0,timer;
+const $=id=>document.getElementById(id),V=[$('v0'),$('v1')];
+const empty=m=>{document.body.insertAdjacentHTML('beforeend',`<div class="empty">${m}</div>`)};
+async function init(){
+  try{
+    const sb=supabase.createClient(CFG.URL,CFG.KEY);
+    const {data,error}=await sb.from('sarees').select('*').order('sort').order('id');
+    if(error)throw error; items=data||[];
+    const st=await sb.from('settings').select('*');
+    (st.data||[]).forEach(r=>{if(r.key==='shop_name'&&r.value){$('shop').textContent=r.value;document.title=r.value}
+      if(r.key==='whatsapp'&&r.value){let n=r.value.replace(/\D/g,'');if(n[0]==='0')n='88'+n;WA=n}});
+  }catch(e){return empty('সংযোগ ঠিক করা হয়নি। config.js ফাইলে Supabase তথ্য বসান।')}
+  if(!items.length)return empty('এখনো কোনো শাড়ি যোগ করা হয়নি।');
+  show(0);
+}
+function renderRail(){
+  const r=$('rail');r.innerHTML='';
+  for(let k=1;k<items.length;k++){
+    const i=(cur+k)%items.length,s=items[i],c=document.createElement('div');
+    c.className='card';c.style.animationDelay=(k*.07)+'s';
+    c.innerHTML=`<img src="${s.image_url}" alt="" loading="lazy"><span></span>`;
+    c.lastChild.textContent=s.title;c.onclick=()=>show(i);r.appendChild(c);
+  }
+}
+function show(i){
+  cur=i;const s=items[i],nx=V[1-layer],pv=V[layer];
+  clearTimeout(timer);$('bar').style.width='0';
+  nx.src=s.video_url;nx.loop=items.length===1;nx.currentTime=0;
+  nx.play().catch(()=>{});
+  nx.classList.add('on');pv.classList.remove('on');
+  setTimeout(()=>{if(!pv.classList.contains('on'))pv.pause()},950);
+  layer=1-layer;
+  const info=$('info');info.classList.add('out');
+  setTimeout(()=>{$('t').textContent=s.title;$('d').textContent=s.description||'';info.classList.remove('out')},350);
+  $('num').textContent=bn(i+1);renderRail();
+  $('wa').href='https://wa.me/'+WA+'?text='+encodeURIComponent('আসসালামু আলাইকুম, আমি "'+s.title+'" শাড়িটি সম্পর্কে জানতে চাই।');
+  nx.onended=()=>go(1);nx.onerror=()=>{timer=setTimeout(()=>go(1),4000)};
+  nx.ontimeupdate=()=>{if(nx.duration)$('bar').style.width=(nx.currentTime/nx.duration*100)+'%'};
+}
+const go=d=>show((cur+d+items.length)%items.length);
+$('next').onclick=()=>go(1);$('prev').onclick=()=>go(-1);
+document.addEventListener('visibilitychange',()=>{const a=V[1-layer];document.hidden?a.pause():a.play().catch(()=>{})});
+init();
+</script></body></html>
