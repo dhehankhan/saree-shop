@@ -8,7 +8,7 @@
 <video class="bg" id="v1" muted playsinline preload="auto"></video>
 <div class="shade"></div>
 <header><b id="shop">শাড়ি সংগ্রহ</b><a href="admin.html">অ্যাডমিন</a></header>
-<div class="info" id="info"><i></i><h1 id="t"></h1><p id="d"></p><a class="wa" id="wa" target="_blank" rel="noopener">WhatsApp-এ অর্ডার করুন</a></div>
+<div class="info" id="info"><i></i><h1 id="t"></h1><p id="d"></p><a class="wa" id="wa" target="_blank" rel="noopener">WhatsApp-এ অর্ডার</a></div>
 <div class="rail" id="rail"></div>
 <div class="ctl"><button id="prev" aria-label="আগেরটি">←</button><button id="next" aria-label="পরেরটি">→</button></div>
 <div class="num" id="num"></div>
@@ -58,5 +58,6 @@ function show(i){
 const go=d=>show((cur+d+items.length)%items.length);
 $('next').onclick=()=>go(1);$('prev').onclick=()=>go(-1);
 document.addEventListener('visibilitychange',()=>{const a=V[1-layer];document.hidden?a.pause():a.play().catch(()=>{})});
-init();
+document.addEventListener('click',e=>{if(e.target.tagName==='VIDEO')document.body.classList.toggle('clean')});
+  init();
 </script></body></html>
