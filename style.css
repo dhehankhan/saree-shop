@@ -43,5 +43,10 @@ header a{color:#fff;opacity:.8;text-decoration:none;font-size:.9rem}
  .card span{display:none}
  .ctl{left:auto;right:14px;bottom:122px;gap:6px}
  .ctl button{width:32px;height:32px;font-size:.9rem}
+ /* মোবাইলে ৫টা পুরো কার্ড + ৬ নম্বরের কিছু অংশ */
+@media(max-width:700px){
+ .card{width:calc((100vw - 54px)/5.4);scroll-snap-align:start}
+ .rail{scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+}
  .num{display:none}
 }
